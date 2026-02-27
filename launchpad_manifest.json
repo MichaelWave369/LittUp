@@ -1,0 +1,10 @@
+{
+  "name": "LittUp",
+  "version": "0.1.0",
+  "ecosystem": "Triad369",
+  "entrypoint": "app.py",
+  "license": "MIT",
+  "integrations": ["Agentora", "Memoria", "Launchpad"],
+  "local_first": true,
+  "storage": "sqlite"
+}

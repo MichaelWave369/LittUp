@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="LittUp hero placeholder">
+  <rect width="1280" height="720" fill="#0A0A0F"/>
+  <rect x="60" y="60" width="1160" height="600" rx="24" fill="#15152A" stroke="#2A2A4D" stroke-width="4"/>
+  <text x="640" y="330" fill="#7AE7FF" font-size="54" font-family="Arial, sans-serif" text-anchor="middle">LittUp v0.1</text>
+  <text x="640" y="390" fill="#F7F7FF" font-size="28" font-family="Arial, sans-serif" text-anchor="middle">Hero Screenshot Placeholder (SVG)</text>
+</svg>
