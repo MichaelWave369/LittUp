@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Forge room placeholder">
+  <rect width="1280" height="720" fill="#0A0A0F"/>
+  <rect x="40" y="40" width="1200" height="640" rx="18" fill="#15152A" stroke="#2A2A4D" stroke-width="3"/>
+  <text x="640" y="105" fill="#7AE7FF" font-size="40" font-family="Arial, sans-serif" text-anchor="middle">Multi-Agent Forge Room</text>
+  <rect x="90" y="150" width="360" height="490" rx="12" fill="#1E1E39"/>
+  <rect x="470" y="150" width="720" height="230" rx="12" fill="#1E1E39"/>
+  <rect x="470" y="410" width="720" height="230" rx="12" fill="#1E1E39"/>
+</svg>
