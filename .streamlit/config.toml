@@ -1,7 +1,7 @@
-[theme]
-base = "dark"
-primaryColor = "#7AE7FF"
-backgroundColor = "#0A0A0F"
-secondaryBackgroundColor = "#15152A"
-textColor = "#F7F7FF"
-font = "sans serif"
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
