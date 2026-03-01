@@ -8,6 +8,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from .config import ensure_storage_paths, get_settings
 from .db import db_session
 from .models import AgentMessage, Memory, Project, Snapshot
 
@@ -20,7 +21,8 @@ DEFAULT_TEAM_ASSIGNMENT = {
     "Documenter": "Lorekeeper",
 }
 
-ROOT_DIR = Path.home() / ".littup" / "projects"
+settings = ensure_storage_paths(get_settings())
+ROOT_DIR = settings.projects_dir
 ROOT_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -40,9 +42,12 @@ def create_project(name: str, template: str, team_name: str = "Core Team") -> Pr
         project = Project(name=name, template=template, team_name=team_name, status="active")
         s.add(project)
         s.flush()
-        setup_project_files(project.id, template)
-        save_snapshot(project.id, "Initial template scaffold")
-        return project
+        project_id = project.id
+
+    setup_project_files(project_id, template)
+    save_snapshot(project_id, "Initial template scaffold")
+    with db_session() as s:
+        return s.get(Project, project_id)
 
 
 def get_project(project_id: int) -> Project | None:

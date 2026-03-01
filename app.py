@@ -1,22 +1,9 @@
 from __future__ import annotations
 
-import subprocess
-import threading
-import time
-from pathlib import Path
-
-import sys
-
-ROOT = Path(__file__).resolve().parent
-SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
-
 import requests
 import streamlit as st
-import uvicorn
 
-from littup.api import app as fastapi_app
+from littup.config import ensure_storage_paths, get_settings
 from littup.services import (
     DEFAULT_TEAM_ASSIGNMENT,
     ROLES,
@@ -24,8 +11,6 @@ from littup.services import (
     create_project,
     evolve_project,
     get_messages,
-    get_project,
-    get_project_path,
     get_snapshots,
     init_db,
     list_project_files,
@@ -37,7 +22,9 @@ from littup.services import (
     write_file,
 )
 
-st.set_page_config(page_title="LittUp v0.1", layout="wide", page_icon="🛠️")
+settings = ensure_storage_paths(get_settings())
+
+st.set_page_config(page_title="LittUp v0.2", layout="wide", page_icon="🛠️")
 
 
 def inject_css() -> None:
@@ -53,24 +40,6 @@ def inject_css() -> None:
         """,
         unsafe_allow_html=True,
     )
-
-
-def ensure_api_server() -> None:
-    if st.session_state.get("api_started"):
-        return
-
-    def run_server() -> None:
-        uvicorn.run(fastapi_app, host="127.0.0.1", port=8756, log_level="warning")
-
-    thread = threading.Thread(target=run_server, daemon=True)
-    thread.start()
-    for _ in range(20):
-        try:
-            requests.get("http://127.0.0.1:8756/health", timeout=0.2)
-            break
-        except requests.RequestException:
-            time.sleep(0.2)
-    st.session_state["api_started"] = True
 
 
 def render_dashboard() -> None:
@@ -165,18 +134,29 @@ def render_integrations() -> None:
         st.markdown(f"- **{name}**: {desc}")
 
 
+def api_health_status() -> str:
+    try:
+        response = requests.get(f"{settings.api_base_url}/health", timeout=0.5)
+        if response.ok:
+            return "✅ API companion running"
+    except requests.RequestException:
+        pass
+    return "⚠️ API companion unavailable"
+
+
 def render_sidebar() -> None:
-    st.sidebar.title("LittUp v0.1")
+    st.sidebar.title("LittUp v0.2")
     st.sidebar.caption("Local AI Code Forge · Private by default")
     st.sidebar.markdown("### Launchpad Readiness")
     st.sidebar.success("✅ Local-first")
     st.sidebar.success("✅ SQLite memory")
     st.sidebar.success("✅ Agentora-compatible roles")
+    st.sidebar.caption(api_health_status())
+    st.sidebar.caption(f"Data dir: {settings.data_dir}")
 
 
-if __name__ == "__main__":
+def main() -> None:
     init_db()
-    ensure_api_server()
     inject_css()
     render_sidebar()
     st.title("🛠️ LittUp — The Local AI Code Forge")
@@ -187,3 +167,7 @@ if __name__ == "__main__":
         render_forge_room()
     with tabs[2]:
         render_integrations()
+
+
+if __name__ == "__main__":
+    main()
