@@ -1,4 +1,4 @@
-# LittUp v0.1 — The Local AI Code Forge
+# LittUp v0.2 — The Local AI Code Forge
 
 > Build, debug, and ship software locally with a coordinated multi-agent team.
 
@@ -6,70 +6,20 @@
 
 LittUp is an all-in-one open-source studio in the Triad369 ecosystem. It is local-first, offline-capable, and private by default. The app combines:
 
-- **Streamlit** for the primary beautiful noir interface
-- **FastAPI** embedded backend for local APIs
+- **Streamlit** for the primary noir interface
+- **FastAPI** as an internal companion API
 - **SQLite** for project memory, snapshots, and chat logs
 - **Local execution sandbox** for run/test loops
 
 ## Core Features
 
-### 1) Project Dashboard
-- Browse active projects with status, last modification time, and assigned team.
-- One-click project creation with templates:
-  - Web App
-  - Python Script
-  - Game
+- Project dashboard with local template creation
+- Multi-agent forge room (Planner, Coder, Tester, Reviewer, Documenter)
+- Snapshot history + evolve loop
+- Triad369 integrations (Agentora, Memoria, Launchpad)
+- Private-by-default local persistence
 
-### 2) Multi-Agent Forge Room
-- Assign agents to core roles:
-  - Planner
-  - Coder
-  - Tester
-  - Reviewer
-  - Documenter
-- Real-time collaboration chat among roles.
-- Integrated code workspace with save, run, and test actions.
-
-### 3) Agent Roles & Tools
-- Planner: breaks tasks into roadmap steps.
-- Coder: implements and iterates code.
-- Tester: creates and runs checks.
-- Reviewer: quality pass + suggestions.
-- Documenter: README/docs updates.
-- Tools include:
-  - local file system project access
-  - local git compatibility
-  - contained local command runner
-
-### 4) History & Evolution
-- Version snapshots on edits/checkpoints.
-- **Evolve** button to iterate based on feedback.
-
-## Triad369 Integrations
-- **Agentora**: import/pin agents to LittUp roles.
-- **Memoria**: auto-store turn-by-turn collaboration memories.
-- **Launchpad**: package projects + metadata for registration/sharing.
-
-## Project Structure
-
-```text
-LittUp/
-├── app.py
-├── src/littup/
-│   ├── api.py
-│   ├── db.py
-│   ├── models.py
-│   └── services.py
-├── templates/
-│   ├── web_app/
-│   ├── python_script/
-│   └── game/
-├── samples/
-│   └── hello_app/
-└── tests/
-```
-
-## Install
+## Quick Start (Local Development)
 
 ```bash
 git clone https://github.com/MichaelWave369/LittUp
@@ -78,42 +28,74 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e .
+
+# terminal 1: API companion
+uvicorn littup.api:app --host 127.0.0.1 --port 8756
+
+# terminal 2: Streamlit UI
+streamlit run app.py --server.address 127.0.0.1 --server.port 8501
 ```
 
-## Run
+## Production-like Local Run (single command)
 
 ```bash
-streamlit run app.py
+./start.sh
 ```
 
-LittUp stores local state in:
+This starts both processes safely:
+- FastAPI companion: `LITTUP_API_HOST:LITTUP_API_PORT` (defaults `127.0.0.1:8756`)
+- Streamlit public app: `HOST:PORT` (defaults `0.0.0.0:8501` in production mode)
 
-- `~/.littup/littup.db`
-- `~/.littup/projects/`
-
-## API (optional direct use)
+## Docker Deployment
 
 ```bash
-uvicorn littup.api:app --host 127.0.0.1 --port 8756 --reload
+docker build -t littup:latest .
+docker run --rm -p 8501:8501 \
+  -e PORT=8501 \
+  -e HOST=0.0.0.0 \
+  -e LITTUP_ENV=production \
+  -v $(pwd)/.littup-data:/data/littup \
+  littup:latest
+```
+
+Health check endpoints:
+- Public app health: `GET /_stcore/health`
+- Internal API health: `GET http://127.0.0.1:8756/health` (inside container)
+
+## Configuration
+
+Copy `.env.example` and adjust values:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `LITTUP_ENV` | `development` | Runtime mode (`development`/`production`) |
+| `LITTUP_LOG_LEVEL` | `info` | API logging level |
+| `HOST` | `127.0.0.1` dev / `0.0.0.0` prod | Streamlit bind host |
+| `PORT` | `8501` | Streamlit public port |
+| `LITTUP_API_HOST` | `127.0.0.1` | Internal FastAPI bind host |
+| `LITTUP_API_PORT` | `8756` | Internal FastAPI bind port |
+| `LITTUP_DATA_DIR` | `~/.littup` | Root local data directory |
+| `LITTUP_DB_PATH` | `$LITTUP_DATA_DIR/littup.db` | SQLite DB path |
+| `LITTUP_PROJECTS_DIR` | `$LITTUP_DATA_DIR/projects` | Generated project files |
+
+## Platform Deploy Notes
+
+- **Railway**: Included `railway.json` uses Dockerfile deploy path.
+- **Render/Fly/VPS**: Use Dockerfile directly and mount `/data/littup` as a persistent volume.
+
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for complete deployment and troubleshooting guidance.
+
+## Testing
+
+```bash
+pip install pytest
+pytest -q
 ```
 
 ## Screenshots
 
 ![Dashboard Placeholder](docs/screenshots/dashboard-placeholder.svg)
 ![Forge Room Placeholder](docs/screenshots/forge-room-placeholder.svg)
-
-## How it works with Agentora
-
-1. Agentora agents are mapped into LittUp role slots (Planner/Coder/Tester/Reviewer/Documenter).
-2. The Forge Room uses those role assignments to coordinate implementation chat and actions.
-3. Memories from every role interaction are persisted locally in SQLite, compatible with Memoria flows.
-4. Final project artifacts can be packaged for Triad369-Launchpad submission.
-
-## Security & Local-First Notes
-
-- No cloud dependency required for core workflows.
-- All data is local SQLite and local project files.
-- Sandbox runner only allows selected local commands (`python`, `pytest`, `bash`, `sh`).
 
 ## License
 

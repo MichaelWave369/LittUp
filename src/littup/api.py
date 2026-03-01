@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from .config import ensure_storage_paths, get_settings
 from .services import (
     add_message,
     create_project,
@@ -15,7 +16,9 @@ from .services import (
     triad_integrations,
 )
 
-app = FastAPI(title="LittUp API", version="0.1.0")
+settings = ensure_storage_paths(get_settings())
+
+app = FastAPI(title="LittUp API", version="0.2.0")
 
 
 class ProjectIn(BaseModel):
@@ -35,12 +38,13 @@ class EvolveIn(BaseModel):
 
 @app.on_event("startup")
 def startup() -> None:
+    ensure_storage_paths(settings)
     init_db()
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "mode": "local-first"}
+    return {"status": "ok", "mode": "local-first", "env": settings.env}
 
 
 @app.get("/projects")
