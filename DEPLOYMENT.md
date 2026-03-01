@@ -32,7 +32,7 @@ docker run --rm -p 8501:8501 \
 
 ## 4. Health checks
 
-- Container-level: `http://<host>:<port>/_stcore/health`
+- Container-level (public app): `http://127.0.0.1:${PORT}/_stcore/health` (path is `/_stcore/health`)
 - Internal API: `http://127.0.0.1:8756/health`
 
 ## 5. Railway deploy
@@ -41,6 +41,7 @@ docker run --rm -p 8501:8501 \
 2. Create Railway project from repo.
 3. Railway will use `Dockerfile` + `railway.json`.
 4. Add persistent volume mounted at `/data/littup`.
+5. Set **Healthcheck Path** to `/_stcore/health`.
 
 ## 6. Troubleshooting
 
